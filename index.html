@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>Title</title>
+      <link type="text/css" rel="stylesheet" href="stylesheet.css"/>
+      <script src="node_modules/jquery/dist/jquery.min.js"></script>
+      <script src="index.js"></script>
+      <script src="node_modules/lodash/lodash.min.js"></script>
+      <script src="node_modules/director/build/director.min.js"></script>
+  </head>
+  <body>
+    <section id="todoapp">
+  			<header id="header">
+  				<input id="new-todo" placeholder="What needs to be done?" autofocus>
+  			</header>
+  			<section id="main">
+  				<input id="toggle-all" type="checkbox">
+  				<ul id="todo-list"></ul>
+  			</section>
+  			<footer id="footer"></footer>
+  		</section>
+      <script type="text/template" id="todo-template">
+        <% for(var i=0; i<todos.length; i++) {%>
+          <li class='list-item' data-uid=<%= todos[i].uid%>><label><input type="checkbox" class="chekbox-list"
+            <% if(todos[i].isActive == false){ %> checked='true' <%} %>>
+            <%= todos[i].title%></label>
+            <div class='delete-item'></div>
+          </li>
+        <% } %>
+      </script>
+      <script id="footer-template" type="text/template">
+        <ul id='filters'>
+            <li>
+              <a class="buttons" href='#all'>All</a>
+            </li>
+            <li>
+              <a class="buttons" href='#active'>Active</a>
+            </li>
+            <li>
+              <a class="buttons" href='#completed'>Completed</a>
+            </li>
+        </ul>
+        <button class='clear-completed'>Clear completed</button>
+      </script>
+  </body>
+</html>
