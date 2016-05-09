@@ -3,6 +3,7 @@ $(function () {
 
   var $todoList = $('#todo-list');
   var $newTodo = $('#new-todo');
+  var $footer =   $('#footer');
 
   var ViewModel = {
     todos: [],
@@ -71,10 +72,10 @@ $(function () {
     bindEvents: function () {
       $newTodo.on('keyup', this.create.bind(this));
       $('#toggle-all').on( "change",this.toggleChekedAllList.bind(this));
-      $('#footer').on('click','.clear-completed',this.clearComplited.bind(this));
+      $footer.on('click','.clear-completed',this.clearComplited.bind(this));
       $todoList
       .on('click', ".delete-item", this.deleteItem.bind(this))
-      .on( "change", ".chekbox-list", this.stateChange.bind(this));
+      .on( "change", ".item-chekbox", this.stateChange.bind(this));
     },
 
     renderTodosList : function(){
@@ -89,12 +90,19 @@ $(function () {
       }else{
         $todoList.hide();
       }
+
+      if(ViewModel.todos.length>0){
+        $footer.show();
+      }else{
+        $footer.hide();
+      }
+
       this.renderFooter();
     },
 
     renderFooter : function(){
       var html = footerTamplateAsFunction({});
-      $('#footer').html(html);
+      $footer.html(html);
     },
 
     create : function(event){
@@ -102,7 +110,6 @@ $(function () {
       if (event.keyCode == ENTER_KEYCODE) {
         newTodoText = $newTodo.val();
         ViewModel.createTodo(newTodoText);
-
         this.renderTodosList();
         $newTodo.val('');
       }

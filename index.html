@@ -13,35 +13,36 @@
     <section id="todoapp">
   			<header id="header">
   				<input id="new-todo" placeholder="What needs to be done?" autofocus>
+          <input id="toggle-all" type="checkbox">
   			</header>
   			<section id="main">
-  				<input id="toggle-all" type="checkbox">
   				<ul id="todo-list"></ul>
   			</section>
   			<footer id="footer"></footer>
   		</section>
       <script type="text/template" id="todo-template">
         <% for(var i=0; i<todos.length; i++) {%>
-          <li class='list-item' data-uid=<%= todos[i].uid%>><label><input type="checkbox" class="chekbox-list"
+          <li class='list-item' data-uid=<%= todos[i].uid%>><label><input type="checkbox" class="item-chekbox"
             <% if(todos[i].isActive == false){ %> checked='true' <%} %>>
             <%= todos[i].title%></label>
-            <div class='delete-item'></div>
+            <div class='delete-item'>&#x2715;</div>
           </li>
         <% } %>
       </script>
       <script id="footer-template" type="text/template">
         <ul id='filters'>
             <li>
-              <a class="buttons" href='#all'>All</a>
+              <a class="button" href='#all'>All</a>
             </li>
             <li>
-              <a class="buttons" href='#active'>Active</a>
+              <a class="button" href='#active'>Active</a>
             </li>
             <li>
-              <a class="buttons" href='#completed'>Completed</a>
+              <a class="button" href='#completed'>Completed</a>
             </li>
         </ul>
-        <button class='clear-completed'>Clear completed</button>
+        <button class='clear-completed button'>Clear completed</button>
+        <div class="clear-both"></div>
       </script>
   </body>
 </html>
