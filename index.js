@@ -1,141 +1,145 @@
 $(function () {
-  var ENTER_KEYCODE = 13;
+    var ENTER_KEYCODE = 13;
 
-  var $todoList = $('#todo-list');
-  var $newTodo = $('#new-todo');
-  var $footer =   $('#footer');
+    var $todoList = $('#todo-list');
+    var $newTodo = $('#new-todo');
+    var $footer = $('#footer');
 
-  var ViewModel = {
-    todos: [],
-    filter: undefined,
-    createTodo: function(newTodoText){
-      this.todos.push({
-        title:newTodoText,
-        isActive:true,
-        uid: _.uniqueId('todos_')
-      });
-    },
-    toggleAll: function(newState){
-      _.forEach(this.todos, function(todo) {
-        todo.isActive = newState;
-      });
-    },
+    var ViewModel = {
+        todos: [],
+        filter: undefined,
+        createTodo: function (newTodoText) {
+            this.todos.push({
+                title: newTodoText,
+                isActive: true,
+                uid: _.uniqueId('todos_')
+            });
+        },
+        toggleAll: function (newState) {
+            _.forEach(this.todos, function (todo) {
+                todo.isActive = newState;
+            });
+        },
 
-    returnFilteredList : function(){
-      var filtered = [];
-      if(this.filter == "all"){
-        filtered = this.todos;
-      } else if(this.filter == "active"){
-        filtered = _.filter(this.todos, function(o) { return o.isActive; });
-      }else if(this.filter == 'completed'){
-        filtered = _.filter(this.todos, function(o) { return !o.isActive; });
-      }
+        returnFilteredList: function () {
+            var filtered = [];
+            if (this.filter == "all") {
+                filtered = this.todos;
+            } else if (this.filter == "active") {
+                filtered = _.filter(this.todos, function (o) {
+                    return o.isActive;
+                });
+            } else if (this.filter == 'completed') {
+                filtered = _.filter(this.todos, function (o) {
+                    return !o.isActive;
+                });
+            }
 
-      return filtered;
-    },
+            return filtered;
+        },
 
-    removeTodosByUid : function(selectedTodoId){
-      this.todos = _.remove(this.todos, function(n) {
-        return n.uid !== selectedTodoId ;
-      });
-    },
+        removeTodosByUid: function (selectedTodoId) {
+            this.todos = _.remove(this.todos, function (n) {
+                return n.uid !== selectedTodoId;
+            });
+        },
 
-    setTodoState: function(id, isActive){
-      var selectedTodo = _.find(this.todos, function(o) { return o.uid === id; });
-      selectedTodo.isActive = isActive;
-    },
+        setTodoState: function (id, isActive) {
+            var selectedTodo = _.find(this.todos, function (o) {
+                return o.uid === id;
+            });
+            selectedTodo.isActive = isActive;
+        },
 
-    clearComplitedTodos : function(){
-      this.todos = _.filter(this.todos, function(o) {
-        return o.isActive;
-      });
-    }
+        clearComplitedTodos: function () {
+            this.todos = _.filter(this.todos, function (o) {
+                return o.isActive;
+            });
+        }
+    };
 
 
-  };
+    var App = {
+        init: function () {
+            todoTamplateAsFunction = _.template($("#todo-template").html());
+            footerTamplateAsFunction = _.template($("#footer-template").html());
+            this.bindEvents();
+            var routes = {
+                '/:filter': (function (f) {
+                    ViewModel.filter = f;
+                    this.renderTodosList();
+                }).bind(this)
+            }
+            Router(routes).init('/all');
+        },
 
+        bindEvents: function () {
+            $newTodo.on('keyup', this.create.bind(this));
+            $('#toggle-all').on("change", this.toggleChekedAllList.bind(this));
+            $footer.on('click', '.clear-completed', this.clearComplited.bind(this));
+            $todoList
+                .on('click', ".delete-item", this.deleteItem.bind(this))
+                .on("change", ".item-chekbox", this.stateChange.bind(this));
+        },
 
-  var App = {
-    init: function(){
-      todoTamplateAsFunction = _.template($("#todo-template").html());
-      footerTamplateAsFunction = _.template($("#footer-template").html());
-      this.bindEvents();
-      var routes = {
-        '/:filter': (function(f){
-          ViewModel.filter = f;
-          this.renderTodosList();
-        }).bind(this)
-      }
-      Router(routes).init('/all');
-    },
+        renderTodosList: function () {
+            var filteredTodos = ViewModel.returnFilteredList();
+            var html = todoTamplateAsFunction({
+                'todos': filteredTodos
+            });
+            $todoList.html(html);
 
-    bindEvents: function () {
-      $newTodo.on('keyup', this.create.bind(this));
-      $('#toggle-all').on( "change",this.toggleChekedAllList.bind(this));
-      $footer.on('click','.clear-completed',this.clearComplited.bind(this));
-      $todoList
-      .on('click', ".delete-item", this.deleteItem.bind(this))
-      .on( "change", ".item-chekbox", this.stateChange.bind(this));
-    },
+            if (filteredTodos.length > 0) {
+                $todoList.show();
+            } else {
+                $todoList.hide();
+            }
 
-    renderTodosList : function(){
-      var filteredTodos = ViewModel.returnFilteredList();
-      var html = todoTamplateAsFunction({
-        'todos': filteredTodos
-      });
-      $todoList.html(html);
+            if (ViewModel.todos.length > 0) {
+                $footer.show();
+            } else {
+                $footer.hide();
+            }
 
-      if(filteredTodos.length>0){
-        $todoList.show();
-      }else{
-        $todoList.hide();
-      }
+            this.renderFooter();
+        },
 
-      if(ViewModel.todos.length>0){
-        $footer.show();
-      }else{
-        $footer.hide();
-      }
+        renderFooter: function () {
+            var html = footerTamplateAsFunction({});
+            $footer.html(html);
+        },
 
-      this.renderFooter();
-    },
+        create: function (event) {
+            var newTodoText;
+            if (event.keyCode == ENTER_KEYCODE) {
+                newTodoText = $newTodo.val();
+                ViewModel.createTodo(newTodoText);
+                this.renderTodosList();
+                $newTodo.val('');
+            }
+        },
 
-    renderFooter : function(){
-      var html = footerTamplateAsFunction({});
-      $footer.html(html);
-    },
+        toggleChekedAllList: function () {
+            var isChecked = $('#toggle-all').prop("checked");
+            ViewModel.toggleAll(!isChecked);
+            this.renderTodosList();
+        },
 
-    create : function(event){
-      var newTodoText;
-      if (event.keyCode == ENTER_KEYCODE) {
-        newTodoText = $newTodo.val();
-        ViewModel.createTodo(newTodoText);
-        this.renderTodosList();
-        $newTodo.val('');
-      }
-    },
+        deleteItem: function (event) {
+            var selectedTodoId = $(event.currentTarget).parents('li').attr('data-uid');
+            ViewModel.removeTodosByUid(selectedTodoId);
+            this.renderTodosList();
+        },
 
-    toggleChekedAllList : function(){
-      var isChecked = $('#toggle-all').prop("checked");
-      ViewModel.toggleAll(!isChecked);
-      this.renderTodosList();
-    },
+        stateChange: function (event) {
+            var selectedTodoId = $(event.currentTarget).parents('li').attr('data-uid');
+            ViewModel.setTodoState(selectedTodoId, !event.currentTarget.checked);
+        },
 
-    deleteItem : function (event) {
-      var selectedTodoId =$(event.currentTarget).parents('li').attr('data-uid');
-      ViewModel.removeTodosByUid(selectedTodoId);
-      this.renderTodosList();
-    },
-
-    stateChange : function(event){
-      var selectedTodoId = $(event.currentTarget).parents('li').attr('data-uid');
-      ViewModel.setTodoState(selectedTodoId, !event.currentTarget.checked);
-    },
-
-    clearComplited : function(){
-      ViewModel.clearComplitedTodos();
-      this.renderTodosList();
-    }
-  };
-  App.init();
+        clearComplited: function () {
+            ViewModel.clearComplitedTodos();
+            this.renderTodosList();
+        }
+    };
+    App.init();
 });
